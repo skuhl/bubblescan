@@ -28,6 +28,8 @@ This software scans bubble-sheets. It is aimed at people who are comfortable wit
 
 If the images are not being scanned properly, try the following:
 
+* Copy an example PDF out of the examples folder, name it bubblescan.pdf, and see if that works.
+
 * Ensure that the bubbles in the scanned PDFs are not tilted.
 
 * Ensure the pages are aligned with each other. Look at the avg.tif file the extract step creates.
