@@ -38,6 +38,8 @@ If the images are not being scanned properly, try the following:
 
 * Verify/update the pixel locations of the bubbles. To do this, follow the instructions at the top of bubblescan.py which describes changing the coordinates. In short, the software needs to know the pixel coordinate of the upper left and lower right corners around each of the 4 sets of bubbles (answers, username, last name, key).
 
+* If smudges are being detected when there is no answer on the bubble sheet, increase the ignorePixels variable at the top of bubblescan.py
+
 
 
 # Installation
