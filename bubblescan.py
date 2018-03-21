@@ -1,16 +1,63 @@
 #!/usr/bin/env python3
-#from libtiff import TIFF
+
+# Author: Scott Kuhl
 from wand.image import Image
 from wand.color import Color
 import numpy as np
 import glob
 
-# How many points are each question worth?  Initialize this list to
-# zeros to force user to notice that they should fill it in. The
-# length of this list only needs to match the length of the number of
-# answers provided in the key.
-points = [ 0 ] * 50
 
+# === Coordinates ===
+#
+# Open avg.tif created by the extract script in an image editor which
+# puts the 0,0 coordinate in the upper left corner of the image (such
+# as GIMP). Then, imagine a grid being laid down that puts each bubble
+# in its own cell. The first pair of numbers in these arrays is the
+# position of the upper left corner of that grid (i.e., a point to the
+# upper-left corner of the upper-left bubble). The second pair of
+# numbers is the lower right corner of that grid (i.e., the
+# lower-right corner of the lower-right bubble). The last two numbers
+# are the number of columns in the grid and the number of rows in the
+# grid.
+
+#                upper left,  lower right, cols, rows
+ansCoords =      [ 105, 68,   175, 703,    6,    50 ]
+usernameCoords = [ 199, 151,  330, 605,    11,   26+10 ]
+lastCoords =     [ 341, 151,  472, 479,    11,   26 ]
+keyCoords =      [ 228, 99,   295, 112,    5,    1 ]
+
+
+# === points ===
+#
+# How many points are each question worth? The length of this list
+# only needs to match the length of the number of answers provided in
+# the key.
+points = [ 1 ] * 50  # make a list of 50 ones for an exam with 50 1pt questions with: [ 1 ] * 50
+
+
+# === ignorePixels ===
+#
+# If this is set to 1, then a single black pixel
+# in the thresholded image will be ignored. Also, two 50% gray pixels
+# will be ignored (because the total darkness would sum to match a
+# single pixel). Increase this number to prevent the software from
+# detecting an occasional stray smudge as an answer. Decrease the
+# value to detect faint smudges as answers. It is recommended that you
+# set this to as small of a value as you can without incorrectly
+# identifying smudges as answers.
+#
+# Note: If there are multiple bubbles marked for a single question, we
+# use the one that sums to the darkest value. Therefore, if there is a
+# good mark and a faint smudge for an alternative answer, this
+# software will detect the good mark. This variable will impact
+# questions where there is no answer and we read a smudge as an
+# answer.
+ignorePixels = 2.5
+
+
+
+
+# Code follows. You should not need to make changes beyond this point.
 
 class Exam:
     filename = None
@@ -44,13 +91,20 @@ def countWhite(image, minX,maxX,minY,maxY):
 
     #print("returning %d" % count)
     #print(count)
-    if count < 255*1.5:  # if sum shows less than 1.5 fully lit pixels, ignore.
+    if count < 255*ignorePixels:
         return 0
     return count;
 
-def layGrid(image, upperLeftX, upperLeftY, lrX, lrY, cols, rows):
+def layGrid(image, coord):
     """Given an image, the upper left corner, and lower left corner of an area on the image, the numbers of rows and columns in the area, return a 2D array showing how many white pixels are in the area."""
 
+    upperLeftX = coord[0]
+    upperLeftY = coord[1]
+    lrX = coord[2]
+    lrY = coord[3]
+    cols = coord[4]
+    rows = coord[5]
+    
     # Calculate as float to prevent rounding errors in positioning of boxes
     boxWidth = (lrX-upperLeftX)/float(cols)
     boxHeight = (lrY-upperLeftY)/float(rows)
@@ -110,14 +164,14 @@ def readExam(filename):
     ex.filename = filename
 
     # answers
-    grid = layGrid(img_buffer, 97, 59, 170, 716, 6, 50)
+    grid = layGrid(img_buffer, ansCoords)
     #print(grid)
     answers = largestColsInGrid(grid)
     #print(answers)
     ex.answers = answers
 
-    # email
-    grid = layGrid(img_buffer, 194, 149, 329, 619, 11, 26+10)
+    # username
+    grid = layGrid(img_buffer, usernameCoords)
     #print(grid)
     answers = largestRowsInGrid(grid)
     #print(answers)
@@ -127,7 +181,7 @@ def readExam(filename):
     ex.username = username.lower()
 
     # lastname
-    grid = layGrid(img_buffer, 348, 150, 482, 489, 11, 26)
+    grid = layGrid(img_buffer, lastCoords)
     #print(grid)
     answers = largestRowsInGrid(grid)
     #print(answers)
@@ -137,9 +191,9 @@ def readExam(filename):
     ex.lastname = lastname.lower()
 
     # key
-    grid = layGrid(img_buffer, 226, 89, 293, 101, 5, 1)
+    grid = layGrid(img_buffer, keyCoords)
     answers = largestColsInGrid(grid)
-    key = answers[0]+1
+    key = answers[0]+1   # first key is key 1
     ex.key = key
     
     return ex
@@ -251,7 +305,7 @@ def percent(points, total):
     pcnt = 0
     denom = float(total)
     if denom > 0:
-        pcnt = total/denom*100
+        pcnt = points/denom*100
     return pcnt
 
 

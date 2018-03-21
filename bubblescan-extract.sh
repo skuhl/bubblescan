@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+
+# Takes a filename as a parameter and echo's the parameter without a filename extension.
+function remove_file_exten() {
+	EXTEN=`echo "${1}" | awk -F . '{print $NF}'`
+	echo "${1/%.${EXTEN}/}"
+}
+
+
+
+
 if [[ ! -e bubblescan.pdf ]]; then
 	echo "Expecting file 'bubblescan.pdf' containing keys and students sheets"
 	exit
@@ -14,8 +24,7 @@ convert -background transparent bubblescan-????.tif -average avg.tif
 for i in bubblescan-????.tif; do
 	echo "Thresholding $i"
 
-	# TODO - fix dependancy
-	base="`file-noextension.sh $i`"
+	base=`remove_file_exten "$i"`
 	
 	# 1. Normalize image so dark areas become black.
 	#
