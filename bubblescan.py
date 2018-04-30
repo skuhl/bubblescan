@@ -238,8 +238,16 @@ def gradeExams(keys, students):
         e.totalPoints = 0
         e.correctCount = 0
         e.correctAnswers = sol.answers
-        for i in range(len(sol.answers)):
-            if sol.answers[i] != -1:
+
+        for i in range(len(sol.answers)):  # for each answer
+            if sol.answers[i] != -1:       # is there an answer to this question?
+
+                # verify answer has a corresponding point value.
+                if i >= len(points):
+                    print("Key %d has an answer for question %d---but you have no point value assigned to it in points array." % (e.key, i+1))
+                    exit(1)
+
+                # Check student's answer
                 if sol.answers[i] == e.answers[i]:
                     e.correctCount = e.correctCount+1
                     e.totalPoints  = e.totalPoints + points[i]
@@ -253,15 +261,25 @@ def printExam(e, key=None):
     for i in range(len(e.answers)):
         print("%-2d " % ((i+1)%100), end="")
     print("")
-    
-    for a in e.answers:
-        print("%s  " % indexToLetterNumber(a).lower(), end='')
+
+    for i in range(len(e.answers)):
+        print("%s  " % indexToLetterNumber(e.answers[i]).lower(), end='')
+        
     print("")
         
     if e.correctAnswers:
-        for a in e.correctAnswers:
-            print("%s  " % indexToLetterNumber(a).lower(), end='')
+        for i in range(len(e.answers)):
+            print("%s  " % indexToLetterNumber(e.correctAnswers[i]).lower(), end='')
         print("<--KEY")
+        for i in range(len(e.answers)):
+            if e.correctAnswers[i] >= 0 and e.correctAnswers[i] != e.answers[i]:
+                print("X  ", end="")
+            else:
+                print("   ", end="")
+        print("<--WRONG")
+                
+            
+    
 
                     
 inputFiles = glob.glob('bubblescan-????-thresh.tif')
@@ -273,17 +291,16 @@ exams = readExams(inputFiles)
 
 
 (keys, students) = sortExams(exams)
-gradeExams(keys, students)
-
-
-# ---- PRINT LONG FORM VERSION ----
 
 print("")
 print("====== Keys ======")
 # Sort keys before printing
-students.sort(key=lambda e: e.key, reverse=False)  # sort by key number
+keys.sort(key=lambda e: e.key, reverse=False)  # sort by key number
 for e in keys:
     printExam(e)
+
+
+gradeExams(keys, students)
 
 
 print("")   
