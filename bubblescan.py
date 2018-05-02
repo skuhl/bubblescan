@@ -178,7 +178,7 @@ def readExam(filename):
     username = "" 
     for i in answers:
         username = username + indexToLetterNumber(i)
-    ex.username = username.lower()
+    ex.username = username.lower().strip()
 
     # lastname
     grid = layGrid(img_buffer, lastCoords)
@@ -188,7 +188,7 @@ def readExam(filename):
     lastname = ""
     for i in answers:
         lastname = lastname + indexToLetterNumber(i)
-    ex.lastname = lastname.lower()
+    ex.lastname = lastname.lower().strip()
 
     # key
     grid = layGrid(img_buffer, keyCoords)
@@ -255,28 +255,33 @@ def gradeExams(keys, students):
 def printExam(e, key=None):
     """Prints information about the exam to the console."""
     print("")
-    print("%8s %11s - %3d points - %3d correct - key %d - %s" % (e.username, e.lastname, e.totalPoints, e.correctCount, e.key, e.filename))
+    print("%-11s %-8s - %3d points - %3d correct - key %d - %s" % (e.lastname, e.username, e.totalPoints, e.correctCount, e.key, e.filename))
 
     # Write 2 digit question number above questions
+    print("Q#  ", end="")
     for i in range(len(e.answers)):
         print("%-2d " % ((i+1)%100), end="")
     print("")
 
+    print("ANS ", end="")
     for i in range(len(e.answers)):
         print("%s  " % indexToLetterNumber(e.answers[i]).lower(), end='')
         
     print("")
         
     if e.correctAnswers:
+        print("KEY ", end="")
         for i in range(len(e.answers)):
             print("%s  " % indexToLetterNumber(e.correctAnswers[i]).lower(), end='')
-        print("<--KEY")
+
+        print("")
+        print("    ", end="")
         for i in range(len(e.answers)):
             if e.correctAnswers[i] >= 0 and e.correctAnswers[i] != e.answers[i]:
                 print("X  ", end="")
             else:
                 print("   ", end="")
-        print("<--WRONG")
+
                 
             
     
@@ -326,9 +331,9 @@ def percent(points, total):
     return pcnt
 
 
-print("%-11s %-11s %3s %5s %3s %3s %s" % ("username", "lastname", "pts", "pcnt", "#c", "key", "filename"))
+print("%-11s %-11s %3s %5s %3s %3s %s" % ("lastname", "username", "pts", "pcnt", "#c", "key", "filename"))
 for e in students:
-    print("%11s %11s %3d %5.1f %3d %1d %s" % (e.username, e.lastname, e.totalPoints, percent(e.totalPoints, sum(points)), e.correctCount, e.key, e.filename))
+    print("%-11s %-11s %3d %5.1f %3d %1d %s" % (e.lastname, e.username, e.totalPoints, percent(e.totalPoints, sum(points)), e.correctCount, e.key, e.filename))
 
 # ---- WRITE FILE ----
     
