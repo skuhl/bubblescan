@@ -21,7 +21,7 @@ import glob
 # grid.
 
 #                upper left,  lower right, cols, rows
-ansCoords =      [ 105, 68,   175, 703,    6,    50 ]
+ansCoords =      [ 104, 71,   174, 704,    6,    50 ]
 usernameCoords = [ 199, 151,  330, 605,    11,   26+10 ]
 lastCoords =     [ 341, 151,  472, 479,    11,   26 ]
 keyCoords =      [ 228, 99,   295, 112,    5,    1 ]
@@ -32,7 +32,7 @@ keyCoords =      [ 228, 99,   295, 112,    5,    1 ]
 # How many points are each question worth? The length of this list
 # only needs to match the length of the number of answers provided in
 # the key.
-points = [ 1 ] * 50  # make a list of 50 ones for an exam with 50 1pt questions with: [ 1 ] * 50
+points = [ 3 ] * 50  # make a list of 50 ones for an exam with 50 1pt questions with: [ 1 ] * 50
 
 
 # === ignorePixels ===
@@ -193,8 +193,7 @@ def readExam(filename):
     # key
     grid = layGrid(img_buffer, keyCoords)
     answers = largestColsInGrid(grid)
-    key = answers[0]+1   # first key is key 1
-    ex.key = key
+    ex.key = answers[0]+1   # first key is key 1
     
     return ex
     
